@@ -39,7 +39,17 @@ print(receipts_df.dtypes)
 #### Step 4a. Confirm that the id or id variable types are unique in each dataframe using code like the following:
 
 ##### i. Convert the unique values in 'id' columns from both dataframes to sets (Had to manually check the dataframes to see which column was the unique identifier)
-customers_df_ids = set(customers_df['id'].unique())
-goods_df_ids = set(goods_df['id'].unique())
-items_df_ids = set(items_df['id'].unique())
+# items_df_ids = set(items_df['id'].unique()) ## This is not going to be unique
+customers_df_ids = set(customers_df['Id'].unique())
+goods_df_ids = set(goods_df['Id'].unique())
 receipts_df_ids = set(receipts_df['RecieptNumber'].unique())
+
+## check to see if the ids are unique
+if len(customers_df_ids) == len(customers_df):
+    print("The ids in the customers dataframe are unique.")
+
+if len(goods_df_ids) == len(goods_df):
+    print("The ids in the goods dataframe are unique.")
+
+if len(receipts_df_ids) == len(receipts_df):
+    print("The ids in the receipts dataframe are unique.")
