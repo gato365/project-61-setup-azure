@@ -9,12 +9,13 @@
 
 import pandas
 # Import the necessary libraries
-from sqlalchemy import Column, Integer, String, ForeignKey, create_engine
+from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey, Numeric
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 import os
 from dotenv import load_dotenv
 
+## ------------------------ DONE ------------------------ 
 
 
 ## Step 3: Load CSV Files
@@ -31,6 +32,9 @@ print(customers_df.dtypes)
 print(goods_df.dtypes)
 print(items_df.dtypes)
 print(receipts_df.dtypes)
+
+## ------------------------ DONE ------------------------ 
+
 
 
 ## Step 4: Clean and Prepare Data
@@ -53,3 +57,69 @@ if len(goods_df_ids) == len(goods_df):
 
 if len(receipts_df_ids) == len(receipts_df):
     print("The ids in the receipts dataframe are unique.")
+
+
+## ------------------------ DONE ------------------------ 
+
+
+## Step 5: Establish Database Connection
+### - Set up environment variables for sensitive information like database credentials (username, password, server address).
+### - Create a connection to the Azure database using SQLAlchemy. This step should include configuring the connection string and establishing the connection using an engine and session object.
+
+load_dotenv()
+
+# Define server and database information
+server_name = os.getenv('SERVER_NAME', 'default_server')
+database = os.getenv('DATABASE_NAME', 'default_database')
+username = os.getenv('DB_USERNAME', 'default_username')
+password = os.getenv('DB_PASSWORD', 'default_password')
+driver = os.getenv('DB_DRIVER', '{ODBC Driver 17 for SQL Server}')
+
+# Create the database engine for SQL Server
+engine = create_engine(f'mssql+pyodbc://{username}:{password}@{server_name}/{database}?driver={driver}')
+## ------------------------ DONE ------------------------ 
+
+
+
+## Step 6: Define Database Schema
+### - Define or confirm the schema of the target database tables if not already existing. This involves setting up classes in SQLAlchemy to mirror the tables you intend to upload the data to, which could also include defining relationships between tables if necessary.
+
+
+
+
+Base = declarative_base()
+
+class Customer(Base):
+    __tablename__ = 'customers'
+    Id = Column(Integer, primary_key=True)
+    LastName = Column(String)
+    FirstName = Column(String)
+
+class Good(Base):
+    __tablename__ = 'goods'
+    Id = Column(Integer, primary_key=True)
+    Flavor = Column(String)
+    Food = Column(String)
+    Price = Column(Numeric)
+
+class Receipt(Base):
+    __tablename__ = 'receipts'
+    ReceiptNumber = Column(Integer, primary_key=True)
+    Date = Column(Date)
+    CustomerId = Column(Integer, ForeignKey('customers.Id'))
+    customer = relationship("Customer", back_populates="receipts")
+
+class Item(Base):
+    __tablename__ = 'items'
+    Receipt = Column(Integer, ForeignKey('receipts.ReceiptNumber'), primary_key=True)
+    Ordinal = Column(Integer, primary_key=True)
+    Item = Column(Integer, ForeignKey('goods.Id'))
+    good = relationship("Good")
+
+# Establishing relationships
+Customer.receipts = relationship("Receipt", order_by=Receipt.ReceiptNumber, back_populates="customer")
+Good.items = relationship("Item", order_by=Item.Ordinal)
+
+# Assuming engine is already created as per the previous code snippet
+# Create all tables in the database
+Base.metadata.create_all(engine)
