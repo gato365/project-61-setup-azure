@@ -26,8 +26,8 @@ from dotenv import load_dotenv
 ### - Use pandas to read CSV files from the specified directory. Ensure you handle any potential encoding issues or missing data during this step.
 
 
-students_df = pandas.read_csv('sample_database_example_students/students.csv')
-teachers_df = pandas.read_csv('sample_database_example_students/teachers.csv')
+students_df = pandas.read_csv('dbs/students/students.csv')
+teachers_df = pandas.read_csv('dbs/students/teachers.csv')
 
 ## ------------------------ DONE ------------------------ 
 
